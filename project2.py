@@ -67,14 +67,10 @@ def process_query(text):
     text = text.replace("’", "'")
     text = re.sub(r'\.+', '.', text)
 
-    # Replace emoji
+    # Replace emoji (không dùng sent_tokenize)
     def replace_emoji(t):
-        new_text = ''
-        for sentence in sent_tokenize(t):
-            words = sentence.split()
-            new_sentence = ' '.join(emoji_dict.get(w, w) for w in words)
-            new_text += new_sentence + '. '
-        return new_text.strip()
+        words = t.split()
+        return ' '.join(emoji_dict.get(w, w) for w in words)
 
     text = replace_emoji(text)
 
@@ -115,7 +111,6 @@ def process_query(text):
     text = re.sub(r"\s+", " ", text).strip()
 
     return text
-
 # -------------------------
 # Load model & data
 # -------------------------
