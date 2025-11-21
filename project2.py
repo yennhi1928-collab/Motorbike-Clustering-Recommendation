@@ -13,6 +13,11 @@ import joblib
 import datetime as dt
 import nltk
 
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
+
 # -------------------------
 # Streamlit app
 # -------------------------
