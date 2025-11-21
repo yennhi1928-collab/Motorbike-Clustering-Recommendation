@@ -243,7 +243,7 @@ with tabs[2]:
     })
 
     st.subheader("Sample Motorbikes")
-    st.dataframe(sample_df_display.style.hide_index())
+    st.dataframe(sample_df_display)
 
     # Input
     selected_title = st.selectbox("Select a motorbike:", sample_df['tieu_de'].tolist())
