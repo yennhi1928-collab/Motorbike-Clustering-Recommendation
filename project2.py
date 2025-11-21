@@ -360,7 +360,7 @@ with tabs[3]:
 
     with col2:
         year = st.number_input("Year of Registration", min_value=1979, max_value=dt.date.today().year, value=2015)
-        km = st.number_input("Kilometers Travelled", min_value=0, max_value=1200000, value=30000)
+        km = st.number_input("Kilometers Travelled", min_value=0, max_value=1200000, value=30000, step=500)
 
     with col3:
         dt_xe = st.selectbox("Engine Capacity", dt_xes)
