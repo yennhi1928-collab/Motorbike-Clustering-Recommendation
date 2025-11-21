@@ -30,14 +30,14 @@ def load_dict(file_path):
                 d[key.lower()] = value
     return d
 
-emoji_dict = load_dict('files/emojicon.txt')
-teen_dict = load_dict('files/teencode.txt')
-english_dict = load_dict('files/english-vnmese.txt')
+emoji_dict = load_dict('emojicon.txt')
+teen_dict = load_dict('teencode.txt')
+english_dict = load_dict('english-vnmese.txt')
 
-with open('files/wrong-word.txt', 'r', encoding='utf8') as f:
+with open('wrong-word.txt', 'r', encoding='utf8') as f:
     wrong_lst = set(line.strip() for line in f if line.strip())
 
-with open('files/vietnamese-stopwords.txt', 'r', encoding='utf8') as f:
+with open('vietnamese-stopwords.txt', 'r', encoding='utf8') as f:
     stopwords_lst = set(f.read().splitlines())
 
 # -------------------------
@@ -415,4 +415,5 @@ with tabs[3]:
                 st.warning(f"👉 The motorbike belongs to **{cluster_info[pred]}**")
 
         except Exception as e:
+
             st.error(f"Error predicting cluster: {e}")
