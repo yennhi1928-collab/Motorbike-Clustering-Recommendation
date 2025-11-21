@@ -12,12 +12,20 @@ from nltk.tokenize import sent_tokenize
 import joblib
 import datetime as dt
 import nltk
+import os
 
+nltk_data_dir = "/tmp/nltk_data"
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
+
+# Thêm vào path NLTK
+nltk.data.path.append(nltk_data_dir)
+
+# Kiểm tra và download punkt nếu chưa có
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
-    nltk.download("punkt")
-
+    nltk.download("punkt", download_dir=nltk_data_dir)
 # -------------------------
 # Streamlit app
 # -------------------------
