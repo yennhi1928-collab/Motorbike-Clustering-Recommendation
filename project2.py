@@ -11,6 +11,7 @@ from underthesea import pos_tag
 from nltk.tokenize import sent_tokenize
 import joblib
 import datetime as dt
+import nltk
 
 # -------------------------
 # Streamlit app
