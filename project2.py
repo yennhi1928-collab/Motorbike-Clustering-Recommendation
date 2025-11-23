@@ -117,7 +117,7 @@ with col_left:
     st.markdown(
     "<p style='margin:5px 0 0 0; font-size:14px; font-weight:bold; color:#000; "
     "text-align:left; white-space:nowrap; font-style:italic;'>"
-    "Sản phẩm của nhóm Xuân Mai & Yến Nhi, ngày 29/11/2025</p>",
+    "Sản phẩm của Xuân Mai & Yến Nhi, ngày 23/11/2025</p>",
     unsafe_allow_html=True
 )
 with col_right:
