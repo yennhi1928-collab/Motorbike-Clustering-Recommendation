@@ -17,8 +17,6 @@ import os
 # -------------------------
 # Streamlit app
 # -------------------------
-# Page config & Banner
-# -------------------------
 st.set_page_config(page_title="Phân Cụm & Gợi Ý Xe Máy", layout="wide")
 st.image("xe_may_cu.png", use_container_width=True)
 
@@ -117,12 +115,11 @@ with col_left:
     st.markdown(
     "<p style='margin:5px 0 0 0; font-size:14px; font-weight:bold; color:#000; "
     "text-align:left; white-space:nowrap; font-style:italic;'>"
-    "Sản phẩm của Xuân Mai & Yến Nhi, ngày 23/11/2025</p>",
+    "Sản phẩm của nhóm Xuân Mai & Yến Nhi, ngày 29/11/2025</p>",
     unsafe_allow_html=True
 )
 with col_right:
     st.image("logo.png", width=150)
-
 
 # -------------------------
 # Tabs
@@ -145,16 +142,15 @@ with tabs[0]:
 
     with col_left:
         st.markdown("""
-        <div style="background-color:#fff8e1; padding:20px; border-radius:12px; 
-                    box-shadow:2px 2px 10px rgba(0,0,0,0.1); margin-bottom:15px;">
+        <div style="background-color:#ffffff; padding:20px; border-radius:12px; border:1px solid #000; 
+                    margin-bottom:15px;">
             <h4 style="color:#ff9800;">🔍 Gợi Ý Xe Máy</h4>
             <p>Tìm những xe máy tương tự dựa trên mô tả của người dùng hoặc xe mẫu bằng mô hình Gensim.</p>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("""
-        <div style="background-color:#fff8e1; padding:20px; border-radius:12px; 
-                    box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
+        <div style="background-color:#ffffff; padding:20px; border-radius:12px; border:1px solid #000;">
             <h4 style="color:#ff9800;">🛵 Phân Cụm Xe Máy</h4>
             <p>Tự động phân loại xe máy thành 3 cụm dựa trên thương hiệu, loại xe, dung tích, năm sản xuất, km đã đi, và giá bán.</p>
         </div>
@@ -165,16 +161,16 @@ with tabs[0]:
         total_clusters = len(df_data['cluster'].unique()) if 'cluster' in df_data.columns else 3
 
         st.markdown(f"""
-        <div style="background-color:#fff8e1; padding:15px 20px; border-radius:12px; 
-                    text-align:left; margin-bottom:15px; box-shadow:1px 1px 8px rgba(0,0,0,0.1);">
+        <div style="background-color:#ffffff; padding:15px 20px; border-radius:12px; border:1px solid #000; 
+                    text-align:left; margin-bottom:15px;">
             <h4 style="color:#ff9800; margin:0 0 5px 0;">Tổng số xe</h4>
             <p style="font-size:24px; font-weight:bold; margin:0;">{total_bikes:,}</p>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown(f"""
-        <div style="background-color:#fff8e1; padding:15px 20px; border-radius:12px; 
-                    text-align:left; box-shadow:1px 1px 8px rgba(0,0,0,0.1);">
+        <div style="background-color:#ffffff; padding:15px 20px; border-radius:12px; border:1px solid #000; 
+                    text-align:left;">
             <h4 style="color:#ff9800;">Tổng số cụm 🟢🔵🟠</h4>
             <p style="font-size:20px; font-weight:bold;">{total_clusters}</p>
             <ul style="margin:5px 0 0 20px; padding:0;">
@@ -186,15 +182,11 @@ with tabs[0]:
         """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown(
-    """
-    <div style="background-color:#fff8e1; color:#000; padding:12px; border-radius:12px; 
-                box-shadow:1px 1px 6px rgba(0,0,0,0.1); font-size:16px; margin-bottom:15px;">
+    st.markdown("""
+    <div style="background-color:#ffffff; color:#000; padding:12px; border-radius:12px; font-size:16px; margin-bottom:15px;">
         👉 Chuyển sang tab tiếp theo để xem quá trình chọn mô hình.
     </div>
-    """,
-    unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
 # -------------------------
 # TAB 2 – MODEL SELECTION
@@ -211,15 +203,12 @@ with tabs[1]:
 # -------------------------
 with tabs[2]:
     st.title("🔍 Gợi Ý Xe Máy")
-    st.markdown(
-        """
-        <div style="background-color:#fff8e1; color:#000; padding:15px; border-radius:12px; 
-                    box-shadow:1px 1px 6px rgba(0,0,0,0.1); font-size:16px;">
-            🔹 Chọn một xe mẫu hoặc nhập mô tả, sau đó nhấn nút để tìm các xe tương tự.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div style="background-color:#ffffff; color:#000; padding:15px; border-radius:12px; font-size:16px;">
+        🔹 Chọn một xe mẫu hoặc nhập mô tả, sau đó nhấn nút để tìm các xe tương tự.
+    </div>
+    """, unsafe_allow_html=True)
+
     df = df_data.copy()
     sample_df = df.sample(10, random_state=42).reset_index(drop=True)
     sample_df_display = sample_df.assign(
@@ -270,14 +259,14 @@ with tabs[2]:
 
             st.subheader("📝 Thông Tin Xe / Mô Tả")
             st.markdown(
-                f"<div style='background-color:#fff8e1; padding:15px; border-radius:12px; box-shadow:2px 2px 8px rgba(0,0,0,0.1);'>"
+                f"<div style='background-color:#ffffff; padding:15px; border-radius:12px;'>"
                 f"<b>{header_text}</b><br>{original_text}</div>",
                 unsafe_allow_html=True
             )
 
             st.subheader("🔎 Top 3 Xe Tương Tự")
             st.markdown(
-                f"<div style='background-color:#fff3e0; padding:15px; border-radius:12px; box-shadow:2px 2px 8px rgba(0,0,0,0.1);'>"
+                f"<div style='background-color:#ffffff; padding:15px; border-radius:12px;'>"
                 f"{top3_df.to_html(index=False)}</div>",
                 unsafe_allow_html=True
             )
@@ -290,17 +279,12 @@ with tabs[2]:
 # -------------------------
 with tabs[3]:
     st.title("🛵 Phân Cụm Xe Máy")
-    st.markdown(
-        """
-        <div style="background-color:#fff8e1; color:#000; padding:15px; border-radius:12px; 
-                    box-shadow:1px 1px 6px rgba(0,0,0,0.1); font-size:16px;">
-            🔹 Nhập thông tin xe để dự đoán cụm thuộc về:
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div style="background-color:#ffffff; color:#000; padding:15px; border-radius:12px; font-size:16px;">
+        🔹 Nhập thông tin xe để dự đoán cụm thuộc về:
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Cluster info
     cluster_info = {
         0: {"icon": "🟢", "name": "Cụm – Xe phổ biến giá thấp", "desc": "Xe cũ, chạy nhiều km, giá thấp, chủ yếu Honda/Yamaha, tay ga/xe số phổ thông."},
         1: {"icon": "🔵", "name": "Cụm – Xe phổ thông, ít km", "desc": "Xe phổ thông, ít km, giá thấp–trung bình, đa dạng loại và xuất xứ, chủ yếu Honda/Yamaha."},
@@ -337,7 +321,7 @@ with tabs[3]:
         xuat_xu = st.selectbox("Xuất xứ", xuat_xus)
         gia_xe = st.number_input("Giá (triệu VND)", min_value=1, max_value=435, value=20)
 
-    if st.button("Dự Đoán Cụm"):
+    if st.button("🔍 Dự Đoán Cụm"):
         df_input = pd.DataFrame([{
             "Brand": brand, "Type": loai, "Engine Capacity": dt_xe,
             "Origin": xuat_xu, "Kilometers Travelled": km,
@@ -352,17 +336,14 @@ with tabs[3]:
             }))[0]
 
             st.subheader("📋 Thông Tin Xe Nhập Vào")
-            st.markdown(
-                "<div style='background-color:#fff8e1; padding:15px; border-radius:12px; box-shadow:2px 2px 6px rgba(0,0,0,0.15); border-left:6px solid #ffc107;'>",
-                unsafe_allow_html=True
-            )
+            st.markdown("<div style='background-color:#ffffff; padding:15px; border-radius:12px;'>", unsafe_allow_html=True)
             st.table(df_input)
             st.markdown("</div>", unsafe_allow_html=True)
 
             st.subheader("🔍 Kết Quả Phân Cụm")
             info = cluster_info[pred]
             st.markdown(
-                f"<div style='background-color:#fff3e0; padding:20px; border-radius:12px; box-shadow:2px 2px 6px rgba(0,0,0,0.15); border-left:6px solid #ff9800;'>"
+                f"<div style='background-color:#ffffff; padding:20px; border-radius:12px;'>"
                 f"<h3 style='color:#ff9800;'>{info['icon']} {info['name']}</h3>"
                 f"<p style='font-size:16px;'>{info['desc']}</p></div>",
                 unsafe_allow_html=True
