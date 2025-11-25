@@ -14,74 +14,25 @@ import datetime as dt
 import nltk
 import os
 
-# -------------------------
-# Streamlit app
+# Page config
 # -------------------------
 st.set_page_config(page_title="Phân Cụm & Gợi Ý Xe Máy", layout="wide")
-st.image("xe_may_cu.png", use_container_width=True)
-
+st.image("xe_may_cu.png", use_container_width=True, width=100)
 # -------------------------
-# Utility functions
+# Utility: load data/models
 # -------------------------
-def load_dict(file_path):
-    d = {}
-    with open(file_path, 'r', encoding='utf8') as f:
-        for line in f:
-            if '\t' in line:
-                key, value = line.strip().split('\t', 1)
-                d[key.lower()] = value
-    return d
+@st.cache_data
+def load_data():
+    df = pd.read_excel("data_motobikes.xlsx")
+    # Chuẩn hóa tên cột
+    d = {ord('đ'): 'd', ord('Đ'): 'D'}
+    def clean_col(name):
+        s = unicodedata.normalize('NFKD', str(name)).translate(d)
+        s = ''.join(ch for ch in s if not unicodedata.combining(ch))
+        return re.sub(r'\W+', '_', s.lower()).strip('_')
+    df.columns = [clean_col(c) for c in df.columns]
+    return df
 
-emoji_dict = load_dict('files/emojicon.txt')
-teen_dict = load_dict('files/teencode.txt')
-english_dict = load_dict('files/english-vnmese.txt')
-
-with open('files/wrong-word.txt', 'r', encoding='utf8') as f:
-    wrong_lst = set(line.strip() for line in f if line.strip())
-
-with open('files/vietnamese-stopwords.txt', 'r', encoding='utf8') as f:
-    stopwords_lst = set(f.read().splitlines())
-
-# -------------------------
-# Text preprocessing
-# -------------------------
-def process_query(text):
-    if not isinstance(text, str):
-        text = str(text)
-    text = unicodedata.normalize("NFC", text.lower())
-    text = text.replace("’", "'")
-    text = re.sub(r'\.+', '.', text)
-
-    # Replace emoji
-    text = ' '.join(emoji_dict.get(w, w) for w in text.split())
-    # Teencode → chuẩn
-    text = ' '.join(teen_dict.get(w, w) for w in text.split())
-    # Remove wrong words
-    text = ' '.join([w for w in text.split() if w not in wrong_lst])
-    # Cleaning
-    text = unicodedata.normalize("NFKC", text)
-    text = re.sub(r"<[^>]+>", " ", text)
-    text = re.sub(r"http\S+|www\S+|\d{9,11}", " ", text)
-    text = re.sub(r"[^a-zA-ZÀ-ỹ0-9_\s]", " ", text)
-    text = re.sub(r"\b\d+\b", " ", text)
-    text = re.sub(r"(.)\1{2,}", r"\1", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    # English → Vietnamese
-    text = ' '.join([english_dict.get(w.lower(), w) for w in text.split()])
-    # Remove punctuation
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    text = re.sub(r'\s+', ' ', text).strip()
-    # Tokenize & POS tagging
-    text = tokenize(text)
-    tagged = pos_tag(text)
-    text = " ".join([w for w, t in tagged if t in ("N", "A", "V", "R")])
-    # Remove stopwords
-    text = " ".join([w for w in text.split() if w not in stopwords_lst])
-    return text
-
-# -------------------------
-# Load model & data
-# -------------------------
 @st.cache_resource
 def load_gensim_model():
     with open("xe_gensim_sim.pkl", "rb") as f:
@@ -91,107 +42,125 @@ def load_gensim_model():
 def load_cluster_model():
     return joblib.load("cluster_pipeline.pkl")
 
-@st.cache_data
-def load_data():
-    df = pd.read_excel("data_motobikes.xlsx")
-    d = {ord('đ'): 'd', ord('Đ'): 'D'}
-    def clean_col(name):
-        s = unicodedata.normalize('NFKD', str(name)).translate(d)
-        s = ''.join(ch for ch in s if not unicodedata.combining(ch))
-        return re.sub(r'\W+', '_', s.lower()).strip('_')
-    df.columns = [clean_col(c) for c in df.columns]
-    return df
-
+df_data = load_data()
 gensim_model = load_gensim_model()
 cluster_pipeline = load_cluster_model()
-df_data = load_data()
+
+# -------------------------
+# Text preprocessing
+# -------------------------
+def process_query(text):
+    text = str(text).lower()
+    text = re.sub(r"[^a-zA-Z0-9À-ỹ\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    text = tokenize(text)
+    tagged = pos_tag(text)
+    text = " ".join([w for w, t in tagged if t in ("N", "A", "V", "R")])
+    return text
 
 # -------------------------
 # Header container
 # -------------------------
 col_left, col_right = st.columns([5, 1])
 with col_left:
-    st.markdown("<h1 style='margin:0; color:#ffb400;'>Phân Cụm & Gợi Ý Xe Máy</h1>", unsafe_allow_html=True)
     st.markdown(
-    "<p style='margin:5px 0 0 0; font-size:14px; font-weight:bold; color:#000; "
-    "text-align:left; white-space:nowrap; font-style:italic;'>"
-    "Sản phẩm của nhóm Xuân Mai & Yến Nhi, ngày 29/11/2025</p>",
-    unsafe_allow_html=True
+        "<h1 style='margin:0; color:#333333; font-weight:bold;'>Phân Cụm & Gợi Ý Xe Máy</h1>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        "<p style='margin:5px 0 0 0; font-size:14px; color:#333333; "
+        "text-align:left; white-space:nowrap; font-style:italic;'>"
+        "Sản phẩm của nhóm Xuân Mai & Yến Nhi, ngày 29/11/2025</p>",
+        unsafe_allow_html=True
+    )
+st.markdown("---")
+# -------------------------
+# Sidebar Menu
+# -------------------------
+st.markdown("""
+<style>
+/* Tăng font cho sidebar radio */
+div[data-baseweb="radio"] label {
+    font-size: 18px !important;
+    font-weight: bold !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+menu = st.sidebar.radio(
+    "📂 Menu",
+    ["🏠 Giới Thiệu", "📈 Chọn Mô Hình", "🔍 Gợi Ý Xe Máy", "🛵 Phân Cụm Xe Máy"]
 )
-with col_right:
-    st.image("logo.png", width=150)
 
 # -------------------------
-# Tabs
+# TAB 1 – HOME / Giới Thiệu
 # -------------------------
-tabs = st.tabs([
-    "🏠 Giới Thiệu",
-    "📈 Chọn Mô Hình",
-    "🔍 Gợi Ý Xe Máy",
-    "🛵 Phân Cụm Xe Máy"
-])
-
-# -------------------------
-# TAB 1 – HOME
-# -------------------------
-with tabs[0]:
+if menu == "🏠 Giới Thiệu":
     st.title("🏠 Giới Thiệu")
     st.write("Hệ thống cung cấp **2 chức năng chính dựa trên dữ liệu xe máy cũ từ Chợ Tốt**:")
 
-    col_left, col_right = st.columns([2, 1])
+    col1, col2 = st.columns(2)
 
-    with col_left:
-        st.markdown("""
-        <div style="background-color:#ffffff; padding:20px; border-radius:12px; border:1px solid #000; 
-                    margin-bottom:15px;">
-            <h4 style="color:#ff9800;">🔍 Gợi Ý Xe Máy</h4>
-            <p>Tìm những xe máy tương tự dựa trên mô tả của người dùng hoặc xe mẫu bằng mô hình Gensim.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div style="background-color:#ffffff; padding:20px; border-radius:12px; border:1px solid #000;">
-            <h4 style="color:#ff9800;">🛵 Phân Cụm Xe Máy</h4>
-            <p>Tự động phân loại xe máy thành 3 cụm dựa trên thương hiệu, loại xe, dung tích, năm sản xuất, km đã đi, và giá bán.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_right:
-        total_bikes = len(df_data)
-        total_clusters = len(df_data['cluster'].unique()) if 'cluster' in df_data.columns else 3
-
-        st.markdown(f"""
-        <div style="background-color:#ffffff; padding:15px 20px; border-radius:12px; border:1px solid #000; 
-                    text-align:left; margin-bottom:15px;">
-            <h4 style="color:#ff9800; margin:0 0 5px 0;">Tổng số xe</h4>
-            <p style="font-size:24px; font-weight:bold; margin:0;">{total_bikes:,}</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown(f"""
-        <div style="background-color:#ffffff; padding:15px 20px; border-radius:12px; border:1px solid #000; 
-                    text-align:left;">
-            <h4 style="color:#ff9800;">Tổng số cụm 🟢🔵🟠</h4>
-            <p style="font-size:20px; font-weight:bold;">{total_clusters}</p>
-            <ul style="margin:5px 0 0 20px; padding:0;">
-                <li>🟢 Cụm 0 – Xe phổ biến giá thấp</li>
-                <li>🔵 Cụm 1 – Xe phổ thông, ít km</li>
-                <li>🟠 Cụm 2 – Xe mới cao cấp</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("""
-    <div style="background-color:#ffffff; color:#000; padding:12px; border-radius:12px; font-size:16px; margin-bottom:15px;">
-        👉 Chuyển sang tab tiếp theo để xem quá trình chọn mô hình.
+    # Ô 1
+    html1 = """
+    <div style="
+        padding:20px; border-radius:14px;
+        background-color:#f0f0f0;
+        box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        border:3px;
+        height:300px;
+        cursor:pointer;
+        transition: transform 0.2s;
+    " 
+    onmouseover="this.style.transform='scale(1.03)';" 
+    onmouseout="this.style.transform='scale(1)';">
+        <div style="font-size:18px; font-weight:bold; margin-bottom:10px;">🔍 Gợi Ý Xe Máy</div>
+        <div>- Hệ thống giúp bạn tìm những xe máy tương tự dựa trên mô tả hoặc xe mẫu.</div>
+        <hr style="margin:10px 0;">
+        <div style="font-size:18px; font-weight:bold; margin-bottom:5px;">📌 Tổng Số Xe Trong Dữ Liệu</div>
+        <div>7,208 xe</div>
     </div>
-    """, unsafe_allow_html=True)
+    """
 
+    # Ô 2
+    html2 = """
+    <div style="
+        padding:20px; border-radius:14px;
+        background-color:#f0f0f0;
+        box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        border:3px;
+        height:300px;
+        cursor:pointer;
+        transition: transform 0.2s;
+    " 
+    onmouseover="this.style.transform='scale(1.03)';" 
+    onmouseout="this.style.transform='scale(1)';">
+        <div style="font-size:18px; font-weight:bold; margin-bottom:10px;">🛵 Phân Cụm Xe Máy</div>
+        <div>- Chia dữ liệu xe máy thành 3 nhóm đặc trưng.</div>
+        <hr style="margin:10px 0;">
+        <div style="font-size:18px; font-weight:bold; margin-bottom:5px;">📍 Mô Tả 3 Nhóm</div>
+        <ul style="margin:0; padding-left:20px;">
+            <li>🟢 Xe giá thấp, phổ thông</li>
+            <li>🔵 Xe đi ít km, còn mới</li>
+            <li>🟠 Xe mới cao cấp</li>
+        </ul>
+    </div>
+    """
+
+    # Render
+    with col1:
+        if st.button("1", key="btn1"):
+            st.session_state['menu'] = "🔍 Gợi Ý Xe Máy"  # chuyển tab
+        st.markdown(html1, unsafe_allow_html=True)
+        
+    with col2:
+        if st.button("2", key="btn2"):
+            st.session_state['menu'] = "🛵 Phân Cụm Xe Máy"  # chuyển tab
+        st.markdown(html2, unsafe_allow_html=True)
 # -------------------------
 # TAB 2 – MODEL SELECTION
 # -------------------------
-with tabs[1]:
+if menu == "📈 Chọn Mô Hình":
     st.title("📈 Chọn Mô Hình")
     st.write("Tóm tắt các mô hình Gợi Ý và Phân Cụm:")
     st.image("Summarize.png", use_container_width=True)
@@ -201,11 +170,19 @@ with tabs[1]:
 # -------------------------
 # TAB 3 – RECOMMENDATION
 # -------------------------
-with tabs[2]:
+if menu == "🔍 Gợi Ý Xe Máy":
     st.title("🔍 Gợi Ý Xe Máy")
     st.markdown("""
-    <div style="background-color:#ffffff; color:#000; padding:15px; border-radius:12px; font-size:16px;">
-        🔹 Chọn một xe mẫu hoặc nhập mô tả, sau đó nhấn nút để tìm các xe tương tự.
+    <div style="
+        background: linear-gradient(135deg, #fff9c4, #ffe0b2); 
+        color:#333333; 
+        padding:20px; 
+        border-radius:15px; 
+        font-size:18px; 
+        text-align:left;
+        box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+    ">
+        ✨ Chọn một xe mẫu hoặc nhập mô tả, sau đó nhấn nút để tìm các xe tương tự:
     </div>
     """, unsafe_allow_html=True)
 
@@ -225,8 +202,11 @@ with tabs[2]:
     st.subheader("Các Xe Mẫu")
     st.dataframe(sample_df_display)
 
-    selected_title = st.selectbox("Chọn một xe:", sample_df['tieu_de'].tolist())
-    query_text = st.text_area("Hoặc nhập mô tả xe:")
+    st.markdown("<span style='font-size:18px; font-weight:bold; margin-bottom:-5px; display:block;'>Chọn một xe:</span>", unsafe_allow_html=True)
+    selected_title = st.selectbox("", sample_df['tieu_de'].tolist())
+
+    st.markdown("<span style='font-size:18px; font-weight:bold; margin-bottom:-5px; display:block;'>Hoặc nhập mô tả xe:</span>", unsafe_allow_html=True)
+    query_text = st.text_area("", height=120)
 
     if st.button("🔍 Tìm Xe Tương Tự"):
         try:
@@ -277,14 +257,22 @@ with tabs[2]:
 # -------------------------
 # TAB 4 – CLUSTERING
 # -------------------------
-with tabs[3]:
+if menu == "🛵 Phân Cụm Xe Máy":
     st.title("🛵 Phân Cụm Xe Máy")
     st.markdown("""
-    <div style="background-color:#ffffff; color:#000; padding:15px; border-radius:12px; font-size:16px;">
-        🔹 Nhập thông tin xe để dự đoán cụm thuộc về:
+    <div style="
+        background: linear-gradient(135deg, #fff9c4, #ffe0b2); 
+        color:#333333; 
+        padding:20px; 
+        border-radius:15px; 
+        font-size:18px; 
+        text-align:left;
+        box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+    ">
+        ✨ Nhập thông tin xe để dự đoán cụm thuộc về:
     </div>
     """, unsafe_allow_html=True)
-
+    df = df_data.copy()
     cluster_info = {
         0: {"icon": "🟢", "name": "Cụm – Xe phổ biến giá thấp", "desc": "Xe cũ, chạy nhiều km, giá thấp, chủ yếu Honda/Yamaha, tay ga/xe số phổ thông."},
         1: {"icon": "🔵", "name": "Cụm – Xe phổ thông, ít km", "desc": "Xe phổ thông, ít km, giá thấp–trung bình, đa dạng loại và xuất xứ, chủ yếu Honda/Yamaha."},
@@ -340,7 +328,7 @@ with tabs[3]:
             st.table(df_input)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            st.subheader("🔍 Kết Quả Phân Cụm")
+            st.subheader("🛵 Kết Quả Phân Cụm")
             info = cluster_info[pred]
             st.markdown(
                 f"<div style='background-color:#ffffff; padding:20px; border-radius:12px;'>"
