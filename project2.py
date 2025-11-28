@@ -64,10 +64,6 @@ def process_query(text):
 col_left, col_right = st.columns([5, 1])
 with col_left:
     st.markdown(
-        "<h1 style='margin:0; color:#333333; font-weight:bold;'>Gợi Ý & Phân Cụm Xe Máy</h1>",
-        unsafe_allow_html=True
-    )
-    st.markdown(
         "<p style='margin:5px 0 0 0; font-size:14px; color:#333333; "
         "text-align:left; white-space:nowrap; font-style:italic;'>"
         "Sản phẩm của Xuân Mai & Yến Nhi, ngày 29/11/2025</p>",
