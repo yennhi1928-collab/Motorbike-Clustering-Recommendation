@@ -256,9 +256,9 @@ elif st.session_state['menu'] == "🛵 Phân Cụm Xe Máy":
         """, unsafe_allow_html=True)
         df = df_data.copy()
         cluster_info = {
-            0: {"icon": "🟢", "name": "Cụm – Xe thuộc phân khúc tầm trung", "desc": "Giá trung bình, mới, đi nhiều, thương hiệu phổ biến"},
-            1: {"icon": "🔵", "name": "Cụm – Xe thuộc phân khúc cao cấp", "desc": "Giá cao, xe mới, ít đi, thương hiệu mạnh"},
-            2: {"icon": "🟠", "name": "Cụm – Xe thuộc phân khúc giá rẻ", "desc": "Giá rẻ, cũ, đi nhiều, thương hiệu bình dân"}
+            0: {"icon": "🟢", "name": "Xe thuộc phân khúc tầm trung", "desc": "Giá trung bình, mới, đi nhiều, thương hiệu phổ biến"},
+            1: {"icon": "🔵", "name": "Xe thuộc phân khúc cao cấp", "desc": "Giá cao, xe mới, ít đi, thương hiệu mạnh"},
+            2: {"icon": "🟠", "name": "Xe thuộc phân khúc giá rẻ", "desc": "Giá rẻ, cũ, đi nhiều, thương hiệu bình dân"}
         }
 
         threshold = 10
